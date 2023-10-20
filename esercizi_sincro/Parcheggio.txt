@@ -1,0 +1,49 @@
+variabili
+MAXPOSTI //numero massimo posti parcheggio
+MAXCORR //numero massimo posti corridoio entrata/uscita
+ 
+mutex m_entrata;
+int auto_entranti=0;
+int posti_disp=MAXPOSTI;
+sem uscita=MAXCORR;
+mutex m_posti;
+ 
+auto(quantita){
+	wait(m_entrata)
+	while(quantita+auto_entranti>MAXCORR){
+		signal(m_entrata)
+		wait(m_entrata)
+	}
+	//entrano le auto
+	auto_entranti+=quantita
+	signal(m_entrata)		 //sono entrato e devo cercare posto	
+ 
+	auto_parcheggianti=quantita
+ 
+ 
+	while(auto_parcheggianti>0){
+		wait(m_posti)
+		if(posti_disp-1>0){
+			posti_disp--
+			signal(m_posti)
+			auto_parcheggianti--
+ 
+						//libero anche il corridoio
+			wait(m_entrata)
+			auto_entranti--
+			signal(m_entrata)
+		}
+		else{ signal(m_posti) }
+	}
+ 
+	sleep(100) dopo un po tornano a prendere le auto per lasciare il parcheggio
+ 
+	while(quantita>0){
+		wait(uscita)//si immette nel corridoio
+		quantita--
+		wait(m_posti)
+		posti_disp++ //lascia il parcheggio
+		signal(m_posti)
+		signal(uscita)
+	}
+}

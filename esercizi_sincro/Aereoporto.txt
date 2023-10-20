@@ -1,0 +1,67 @@
+Si consideri il seguente problema:
+I passeggeri in transito in un aeroporto prima di imbarcarsi sull'aereo, devono superare i controlli di sicurezza. I
+controlli sono gestiti come segue. Ogni passeggero sceglie tra N code quella più breve cui accodarsi ed attendere
+il proprio turno per passare il controllo. Ogni coda è gestita da un addetto che lascia passare il primo passeggero
+della coda, indirizzandolo verso una delle M code di accesso al metal detector. Ogni addetto indirizza il
+passeggero verso la coda più breve con lunghezza minore di K. Se il numero di code con lunghezza minore di K è
+inferiore a M/2, gli addetti non lasciano passare i passeggeri finchè persiste tale condizione. Dopo aver
+attraversato il metal detector, il passeggero si dirige all'imbarco.
+Discutere la soluzione p
+______________________________________________________________________________________
+N;//numero code primo turno
+M;//numero code secondo turno
+K;//lunghezza massima per l'accesso
+ 
+int code_primo_turno[N]=0;
+mutex scelta_coda1;
+mutex controlli_primo_turno[N];
+int code_secondo_turno[M]=0;
+mutex indirizzamento;
+ 
+passeggero(){
+    wait(scelta_coda1);
+    int coda_scelta=min(code_primo_turno[]); //scelgo la coda più breve
+ 
+    code_primo_turno[coda_scelta]++; //aumento la coda
+    signal(scelta_coda1);
+ 
+    wait(controlli_primo_turno[coda_scelta]); //mi metto effettivamente in coda per essere controllato, (ne viene controllato ovviamente uno alla volta, ecco perchè un mutex)
+    //passo i controlli e vengo indirizzato
+ 
+    int coda_indirizzata;  
+    while((coda_indirizzata=indirizzamento(code_secondo_turno[]))==-1){ // }
+    //esco dall'attesa attiva e quindi è stata scelta una coda per me
+ 
+    signal(controlli_secondo_turno[coda_scelta]);
+    code_primo_turno[coda_scelta]--;
+    code_secondo_turno[coda_indirizzata]++;
+    wait(controlli_secondo_turno[coda_indirizzata]);//mi metto effettivamente in cosa per il secondo controllo
+    //vengo controllato
+    signal(controlli_secondo_turno[coda_indirizzata]);
+    code_secondo_turno[coda_indirizzata]--;
+}
+ 
+int indirizzamento(coda[]){
+ 
+    int code_min_k=0;
+    int min=coda[0];
+    int ind=0;
+ 
+	wait(indirizzamento);
+ 
+    for(i=1 to size(coda)){
+        if(coda[i]<min){
+            min=coda[i];
+            ind=i;
+        }
+        if(coda[i]<k)}
+            code_min_k++;        
+    }
+ 
+   signal(indirizzamento);
+ 
+    if(code_min_k < size(coda)/2)
+        return -1;
+    else
+        return ind;
+}

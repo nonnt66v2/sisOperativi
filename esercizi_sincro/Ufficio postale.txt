@@ -1,0 +1,34 @@
+\/* Un ufficio postale eroga due tipi di servizi A e B. Nell'ufficio sono aperti n sportelli per il servizio A, e m sportelli per il servizio B.
+All'arrivo, un cliente prende un numero per il servizio richiesto ed attende il suo turno. Ogni impiegato dopo aver servito un cliente, chiama il numero successivo per il servizio erogato dal proprio sportello.
+Nel caso in cui non ci sono clienti l'impiegato si mette in attesa e viene risvegliato dall'arrivo di un nuovo cliente. L'ufficio accetta prenotazioni per il servizio A dopo l'ora X e per il servizio B dopo l'ora Y. */
+ 
+int N=...;// numero sportelli per A
+int M=...;// numero sportelli per B
+date X=...;// orario max servizio A
+date Y=...;// orario max servizio B
+sem servizi[2];
+servizi[0]=N;
+servizi[1]=M;
+sem impiegato[2]=0;
+date tempo[2]; tempo[0]=X; tempo[1]=Y;
+ 
+cliente(richiesta){ //servizio è un numero randomico tra 0 e 1
+repeat
+    if(tempo[richiesta]>getTime()){
+        wait(servizi[richiesta]);
+        				// prendo il mio numero con la wait, quindi nel caso non ci siano sportelli liberi aspetto il mio turno
+        signal(impiegato[richiesta]);
+        				//"sveglio" l'impiegato e vengo servito
+    }
+    else{sleep(tempo[richiesta]-getTime());}
+forever
+}
+ 
+impiegato(servizio_offerto){		//presuppongo che vengano inizializzati N e M impiegati rispettivamente per ogni servizio/sportello
+repeat
+    wait(impiegato[servizio_offerto]);
+    					//servo il cliente, visto che mi sono "svegliato" c'è stata una richiesta allo sportello
+    signal(servizio[servizio_offerto];
+    					//prossimo numero
+forever
+}

@@ -1,0 +1,57 @@
+*PROVA 19/07/2017*
+int buffer[N];
+int pid[N];
+int index=0;
+mutex ind=1;
+ 
+sem inserimenti=0; //per essere poi risvegliati
+int num_inseriti=0; //quando num_inseriti=N sveglia il master
+mutex sveglia_master=0; //con questo mutex
+sem copia=0;
+int ind_vincitore=0;
+mutex vincitore[N];
+ 
+worker(){
+    int num, mio_indice;
+repeat
+    num=rand%100;//genero il numero
+    wait(inserimenti);//accedo per l'inserimento
+ 
+    wait(ind);//agisco sul buffer e sull'indice in mutua esclusione
+    buffer[ind%N]=num;
+    pid[ind%N]=getpid();
+    mio_indice=ind%N;
+    num_inseriti++;
+    ind++;
+    signal(ind);//esco dalla SC
+ 
+    if(num_inseriti==N){
+        signal(sveglia_master);
+        num_inseriti--;
+    }
+ 
+    wait(vincitore[mio_indice]);
+ 
+    if(ind_vincitore=mio_indice){
+        //effettua copie
+        for(int i=0 to N/2)
+            signal(copie);
+        for(int i=0 to N-1)
+            signal(vincitore[mio_indice+1%N]);
+    }
+    else
+        try_wait(copie);
+ 
+forever
+}
+ 
+master(){
+    for(int i=0 to N)
+        signal(inserimento);
+repeat
+    wait(sveglia_master);
+    ind_vincitore=get_indice(max(buff));
+    //crea elemento
+    signal(vincitore[ind_vincitore]);
+forever
+}

@@ -1,0 +1,44 @@
+N=...;// posti a sedere
+M=...;// posti all'impiedi
+#define TESTA 0
+#define CENTRO 1
+#define CODA 2
+int posti_liberi=N+M;
+int persone_uscenti=0;
+mutex uscita;
+mutex porta[3];
+ 
+ 
+passeggero(porta_scelta){
+	wait(uscita);
+	while(persone_uscenti>0){
+		signal(uscita);
+		wait(uscita);
+		//attesa attiva
+	}
+	signal(uscita);
+ 
+	wait(porta[porta_scelta]);	
+		//se entro è arrivato il mio turno
+		if(posti_liberi>0)
+			posti_liberi--;
+		else{
+			signal(porta[porta_scelta]);//libero la porta e non salgo piu
+			exit(0);
+		}
+	signal(porta[porta_scelta]);
+ 
+	sleep(1000);
+	// esco dall'autobus
+ 
+	wait(persone_uscenti);
+	persone_uscenti++;
+	signal(persone_uscenti);
+ 
+	wait(porta[porta_scelta]};
+	posti_liberi++;
+	wait(persone_uscenti);
+		persone_uscenti--;
+	signal(persone_uscenti);
+	signal(porta[porta_scelta]);
+}

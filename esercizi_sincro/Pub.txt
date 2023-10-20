@@ -1,0 +1,34 @@
+https://pastebin.com/VGFS8utb
+
+B; //numero birre
+N; //numero accesso consecutivi tra 2 riempimenti di boccali
+bool birre[B]=false; //buffer di B elementi booleano dove simuliamo l'uso dei boccali con una assegnazione
+sem piene=0;
+sem vuote=B;
+int indice_amico=0;
+int indice_barista=0;
+int array_accessi[]=0;
+
+amico(){
+
+repeat
+    if(array_accessi[getpid()-getppid()]<=N){
+        wait(piene);
+        birre[indice_amico]=false;
+        indice_amico+=1%N;
+        array_accessi[getpid)()-getppid()];
+        signal(vuote);
+    }
+    else{//attesa attiva}
+forever
+}
+ 
+barista(){
+repeat
+    wait(vuote);
+    birre[indice_barista]=true;
+    indice_barista+=1%N;
+    array_accessi[]=0; //riazzera tutti i contatori di accessi alle birre
+    signal(piene);
+forever
+}
